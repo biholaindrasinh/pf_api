@@ -14,7 +14,8 @@ class AccountController extends Controller
      */
     public function index()
     {
-        $accounts = Account::all();
+
+        $accounts = Account::where('user_id','=' , auth()->user()->id)->get();
         return response()->json($accounts);
     }
 
@@ -75,6 +76,7 @@ class AccountController extends Controller
     public function update(Request $request, Account $account)
     {
         $account->name = $request->name;
+        $account->user_id = auth()->user()->id;
         $account->save();
         return response()->json($account);
     }

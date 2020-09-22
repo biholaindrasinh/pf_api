@@ -22,6 +22,7 @@ class CreateTransactionsTable extends Migration
             $table->integer("account_id");
             $table->enum('transaction_type',['income','expense']);
             $table->text("description");
+            $table->integer('user_id');
             $table->timestamps();
         });
     }

@@ -15,7 +15,7 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        $transactions = Transaction::with('category')->with('account')->get();
+        $transactions = Transaction::where('user_id','=' , auth()->user()->id)->with('category')->with('account')->get();
 
         return response()->json($transactions);
     }
@@ -51,6 +51,7 @@ class TransactionController extends Controller
         $transaction->account_id = $request->account;
         $transaction->transaction_type = $request->transaction_type;
         $transaction->description = $request->description;
+        $transaction->user_id = auth()->user()->id;
         $transaction->save();
         return response()->json($transaction);
     }
@@ -95,6 +96,7 @@ class TransactionController extends Controller
         $transaction->account_id = $request->account;
         $transaction->transaction_type = $request->transaction_type;
         $transaction->description = $request->description;
+        $transaction->user_id = auth()->user()->id;
         $transaction->save();
         return response()->json($transaction);
     }

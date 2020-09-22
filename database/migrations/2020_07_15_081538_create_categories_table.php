@@ -17,6 +17,7 @@ class CreateCategoriesTable extends Migration
             $table->id();
             $table->string('name',255);
             $table->enum('type',['income','expense']);
+            $table->integer('user_id');
             $table->timestamps();
         });
     }

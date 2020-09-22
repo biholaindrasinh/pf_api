@@ -14,7 +14,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::all();
+        $categories = Category::where('user_id','=' , auth()->user()->id)->get();
         return response()->json($categories);
     }
 
@@ -44,6 +44,7 @@ class CategoryController extends Controller
         $category = new Category();
         $category->name = $request->name;
         $category->type = $request->type;
+        $category->user_id = auth()->user()->id;
         $category->save();
         return response()->json($category);
     }

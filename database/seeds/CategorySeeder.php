@@ -14,10 +14,10 @@ class CategorySeeder extends Seeder
     {
     	DB::table('categories')->truncate();
         DB::table('categories')->insert([
-        	['name' => 'category1', 'type' => "income"],
-        	['name' => 'category2', 'type' => "expense"],
-            ['name' => 'category3', 'type' => "income"],
-            ['name' => 'category4', 'type' => "expense"],
+        	['name' => 'category1', 'type' => "income", 'user_id' => 1],
+        	['name' => 'category2', 'type' => "expense", 'user_id' => 1],
+            ['name' => 'category3', 'type' => "income", 'user_id' => 1],
+            ['name' => 'category4', 'type' => "expense", 'user_id' => 1],
         ]);
     }
 }
