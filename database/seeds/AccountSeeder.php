@@ -14,8 +14,8 @@ class AccountSeeder extends Seeder
     {
     	DB::table('accounts')->truncate();
         DB::table('accounts')->insert([
-        	['name' => 'account1' , 'user_id' => 1],
-        	['name' => 'account2', 'user_id' => 1],
+        	['name' => 'Cash' , 'user_id' => 1],
+        	['name' => 'Bank', 'user_id' => 1],
         ]);
     }
 }

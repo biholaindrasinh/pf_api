@@ -44,13 +44,12 @@ class TransactionController extends Controller
     public function store(Request $request)
     {
         $transaction = new Transaction();
-        $transaction->name = $request->name;
         $transaction->date = $request->date;
-        $transaction->amount = $request->amount;
+        $transaction->description = $request->description;
         $transaction->category_id = $request->category;
+        $transaction->amount = $request->amount;
         $transaction->account_id = $request->account;
         $transaction->transaction_type = $request->transaction_type;
-        $transaction->description = $request->description;
         $transaction->user_id = auth()->user()->id;
         $transaction->save();
         return response()->json($transaction);
@@ -89,13 +88,12 @@ class TransactionController extends Controller
     public function update(Request $request, $id)
     {
         $transaction = Transaction::find($id);
-        $transaction->name = $request->name;
         $transaction->date = $request->date;
-        $transaction->amount = $request->amount;
+        $transaction->description = $request->description;
         $transaction->category_id = $request->category;
+        $transaction->amount = $request->amount;
         $transaction->account_id = $request->account;
         $transaction->transaction_type = $request->transaction_type;
-        $transaction->description = $request->description;
         $transaction->user_id = auth()->user()->id;
         $transaction->save();
         return response()->json($transaction);
