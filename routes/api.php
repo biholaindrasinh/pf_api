@@ -13,12 +13,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::group([ 'prefix' => 'auth' ], function () {
+    Route::post('register', 'AuthController@register');
     Route::post('login', 'AuthController@login');
     Route::post('logout', 'AuthController@logout');
     Route::post('refresh', 'AuthController@refresh');
     Route::get('user', 'AuthController@me');
 });
-Route::post('register', 'RegisterationController@store');
 Route::resource('categories','CategoryController');
 
 Route::get('categories/transaction/{id}','CategoryController@getCategory');

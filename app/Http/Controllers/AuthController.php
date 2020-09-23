@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
+use App\User;
 
 class AuthController extends Controller
 {
@@ -14,7 +14,24 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+    }
+
+    public function register()
+    {
+        $this->validate(request(), [
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required',
+        ]);
+
+        $user = new User();
+        $user->name = request()->name;
+        $user->email = request()->email;
+        $user->password = bcrypt(request()->password);
+        $user->save();
+
+        return response()->json($user);
     }
 
     /**
