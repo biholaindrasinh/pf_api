@@ -41,6 +41,10 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+         $this->validate(request(), [
+            'name' => 'required',
+            'type' => 'required',
+        ]);
         $category = new Category();
         $category->name = $request->name;
         $category->type = $request->type;
@@ -81,6 +85,10 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $this->validate(request(), [
+            'name' => 'required',
+            'type' => 'required',
+        ]);
         $category = Category::find($id);
         $category->name = $request->name;
         $category->type = $request->type;

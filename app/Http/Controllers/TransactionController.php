@@ -43,6 +43,12 @@ class TransactionController extends Controller
      */
     public function store(Request $request)
     {
+        $this->validate(request(), [
+            'category' => 'required',
+            'date' => 'required',
+            'amount' => 'required',
+            'account' => 'required',
+        ]);
         $transaction = new Transaction();
         $transaction->date = $request->date;
         $transaction->description = $request->description;
@@ -87,6 +93,12 @@ class TransactionController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $this->validate(request(), [
+            'cate' => 'required',
+            'date' => 'required',
+            'amount' => 'required',
+            'account' => 'required',
+        ]);
         $transaction = Transaction::find($id);
         $transaction->date = $request->date;
         $transaction->description = $request->description;

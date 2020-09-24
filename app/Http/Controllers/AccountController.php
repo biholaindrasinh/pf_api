@@ -37,6 +37,9 @@ class AccountController extends Controller
      */
     public function store(Request $request)
     {
+        $this->validate(request(), [
+            'name' => 'required',
+        ]);
         $account = new Account();
         $account->name = $request->name;
         $account->user_id = auth()->user()->id;
@@ -75,6 +78,9 @@ class AccountController extends Controller
      */
     public function update(Request $request, Account $account)
     {
+        $this->validate(request(), [
+            'name' => 'required',
+        ]);
         $account->name = $request->name;
         $account->user_id = auth()->user()->id;
         $account->save();
