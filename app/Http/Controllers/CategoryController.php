@@ -20,7 +20,7 @@ class CategoryController extends Controller
 
     public function getCategory($id)
     {
-        $categories = Category::where('type','=',$id)->get();
+        $categories = Category::where('user_id','=' , auth()->user()->id)->get();
         return response()->json($categories);
     }
     /**
