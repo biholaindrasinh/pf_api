@@ -21,13 +21,25 @@ class TransactionController extends Controller
 		// 	return Carbon::parse($date->date)->format('d'); // grouping by years
 		// 	//return Carbon::parse($date->created_at)->format('m'); // grouping by months
 		// });
-		$transactions = Transaction::orderBy('id','desc')->with('category')->with('account')
-		->get()
-		->groupBy('date');
+
+		if(request()->type == "future") {
+			$transactions = Transaction::orderBy('date','desc')->where('date', '>', Carbon::now()->format('Y-m-d'))->with('category')->with('account')
+			->get()
+			->groupBy('date');
+		} 
+		else if(request()->type == "past") {
+			$date = Carbon::now();
+			$transactions = Transaction::orderBy('date','desc')->whereMonth('date', $date->subMonth()->format('m'))->with('category')->with('account')->get()->groupBy('date');
+		}		
+		else {
+			$transactions = Transaction::orderBy('date','desc')->where('date', '<=', Carbon::now()->format('Y-m-d'))->with('category')->with('account')
+			->get()
+			->groupBy('date');
+		}
 		
 		foreach($transactions as $key => $transaction){
 			$income = 0;
-		$expense = 0;
+			$expense = 0;
 			
 			foreach($transaction as $detail) {
 				if($detail->transaction_type == 'income') {
@@ -42,7 +54,7 @@ class TransactionController extends Controller
 			$transaction->put('date', Carbon::parse($key)->format('d'));
 			$transaction->put('month_with_year', Carbon::parse($key)->format('F Y'));
 			$transaction->put('total', $total);
-		 }
+		}
 		 
         return response()->json($transactions);
     }
@@ -97,7 +109,7 @@ class TransactionController extends Controller
      */
     public function show($id)
     {
-        $transaction = Transaction::find($id);
+		$transaction = Transaction::with('category')->with('account')->find($id);
         return response()->json($transaction);
     }
 
