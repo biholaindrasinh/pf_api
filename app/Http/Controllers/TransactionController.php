@@ -6,6 +6,7 @@ use App\Transaction;
 use Illuminate\Http\Request;
 use Carbon\Carbon;  
 use App\Category;
+use DB;
 
 
 class TransactionController extends Controller
@@ -31,8 +32,15 @@ class TransactionController extends Controller
 			$date = Carbon::now();
 			$transactions = Transaction::orderBy('date','desc')->whereMonth('date', $date->subMonth()->format('m'))->with('category')->with('account')->get()->groupBy('date');
 		}		
+		else if(request()->type == "current"){
+			$transactions = Transaction::orderBy('date','desc')->whereMonth('date', Carbon::now()->format('m'))->where('date', '<=', Carbon::now()->format('Y-m-d'))->with('category')->with('account')
+			->get()
+			->groupBy('date');
+		}
 		else {
-			$transactions = Transaction::orderBy('date','desc')->where('date', '<=', Carbon::now()->format('Y-m-d'))->with('category')->with('account')
+			$date = request()->type;
+			$dateMonthArray = explode('-', $date);
+			$transactions = Transaction::orderBy('date','desc')->whereMonth('date', date("m",strtotime($dateMonthArray[0])))->whereyear('date', $dateMonthArray[1])->with('category')->with('account')
 			->get()
 			->groupBy('date');
 		}
@@ -148,7 +156,18 @@ class TransactionController extends Controller
         $transaction->user_id = auth()->user()->id;
         $transaction->save();
         return response()->json($transaction);
-    }
+	}
+	
+	public function getAllTransactionMonth() {
+		$months = Transaction::select(
+			DB::raw("DATE_FORMAT(date,'%M-%Y') as months")
+		)
+		->where('date', '<', Carbon::now()->subMonth())
+		->orderBy('date', 'asc')
+		->groupBy('months')
+		->get();
+		return response()->json($months);
+	}
 
     /**
      * Remove the specified resource from storage.
