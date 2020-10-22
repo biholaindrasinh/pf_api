@@ -7,6 +7,10 @@ use App\Category;
 
 class CategoryController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,15 +18,10 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::where('user_id','=' , auth()->user()->id)->get();
+        $categories = Category::where('user_id', '=', auth()->user()->id)->get();
         return response()->json($categories);
     }
 
-    public function getCategory($id)
-    {
-        $categories = Category::where('user_id','=' , auth()->user()->id)->get();
-        return response()->json($categories);
-    }
     /**
      * Show the form for creating a new resource.
      *
@@ -41,7 +40,7 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-         $this->validate(request(), [
+        $this->validate(request(), [
             'name' => 'required',
             'type' => 'required',
         ]);

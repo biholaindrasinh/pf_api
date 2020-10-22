@@ -19,10 +19,9 @@ Route::group([ 'prefix' => 'auth' ], function () {
     Route::post('refresh', 'AuthController@refresh');
     Route::get('user', 'AuthController@me');
 });
-Route::resource('categories','CategoryController');
 
-Route::get('categories/transaction/{id}','CategoryController@getCategory');
 Route::resource('accounts','AccountController');
+Route::resource('categories','CategoryController');
 Route::get('getalltransactionmonth','TransactionController@getAllTransactionMonth');
 Route::resource('transactions','TransactionController');
 Route::get('transactions/type/{id}','TransactionController@transactionType');

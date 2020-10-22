@@ -4,13 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Transaction;
 use Illuminate\Http\Request;
-use Carbon\Carbon;  
+use Carbon\Carbon;
 use App\Category;
 use DB;
 
-
 class TransactionController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -18,57 +22,48 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        // $transactions = Transaction::where('user_id','=' , 2)->with('category')->with('account')->get()->groupBy(function($date) {
-		// 	return Carbon::parse($date->date)->format('d'); // grouping by years
-		// 	//return Carbon::parse($date->created_at)->format('m'); // grouping by months
-		// });
-
-		if(request()->type == "future") {
-			$transactions = Transaction::orderBy('date','desc')->where('date', '>', Carbon::now()->format('Y-m-d'))->with('category')->with('account')
-			->get()
-			->groupBy('date');
-		} 
-		else if(request()->type == "past") {
-			$date = Carbon::now();
-			$transactions = Transaction::orderBy('date','desc')->whereMonth('date', $date->subMonth()->format('m'))->with('category')->with('account')->get()->groupBy('date');
-		}		
-		else if(request()->type == "current"){
-			$transactions = Transaction::orderBy('date','desc')->whereMonth('date', Carbon::now()->format('m'))->where('date', '<=', Carbon::now()->format('Y-m-d'))->with('category')->with('account')
-			->get()
-			->groupBy('date');
-		}
-		else {
-			$date = request()->type;
-			$dateMonthArray = explode('-', $date);
-			$transactions = Transaction::orderBy('date','desc')->whereMonth('date', date("m",strtotime($dateMonthArray[0])))->whereyear('date', $dateMonthArray[1])->with('category')->with('account')
-			->get()
-			->groupBy('date');
-		}
-		
-		foreach($transactions as $key => $transaction){
-			$income = 0;
-			$expense = 0;
-			
-			foreach($transaction as $detail) {
-				if($detail->transaction_type == 'income') {
-					$income = $income + $detail->amount;
-				}
-				else {
-					$expense = $expense + $detail->amount;
-				}
-			}
-			$total = $income - $expense ;
-			$transaction->put('day', Carbon::parse($key)->format('l'));
-			$transaction->put('date', Carbon::parse($key)->format('d'));
-			$transaction->put('month_with_year', Carbon::parse($key)->format('F Y'));
-			$transaction->put('total', $total);
-		}
-		 
+        if (request()->type == "future") {
+            $transactions = Transaction::orderBy('date', 'desc')->where('date', '>', Carbon::now()->format('Y-m-d'))->with('category')->with('account')
+            ->get()
+            ->groupBy('date');
+        } elseif (request()->type == "past") {
+            $date = Carbon::now();
+            $transactions = Transaction::orderBy('date', 'desc')->whereMonth('date', $date->subMonth()->format('m'))->with('category')->with('account')->get()->groupBy('date');
+        } elseif (request()->type == "current") {
+            $transactions = Transaction::orderBy('date', 'desc')->whereMonth('date', Carbon::now()->format('m'))->where('date', '<=', Carbon::now()->format('Y-m-d'))->with('category')->with('account')
+            ->get()
+            ->groupBy('date');
+        } else {
+            $date = request()->type;
+            $dateMonthArray = explode('-', $date);
+            $transactions = Transaction::orderBy('date', 'desc')->whereMonth('date', date("m", strtotime($dateMonthArray[0])))->whereyear('date', $dateMonthArray[1])->with('category')->with('account')
+            ->get()
+            ->groupBy('date');
+        }
+        
+        foreach ($transactions as $key => $transaction) {
+            $income = 0;
+            $expense = 0;
+            foreach ($transaction as $detail) {
+                if ($detail->transaction_type == 'income') {
+                    $income = $income + $detail->amount;
+                } else {
+                    $expense = $expense + $detail->amount;
+                }
+            }
+            $total = $income - $expense ;
+            $transaction->put('day', Carbon::parse($key)->format('l'));
+            $transaction->put('date', Carbon::parse($key)->format('d'));
+            $transaction->put('month_with_year', Carbon::parse($key)->format('F Y'));
+            $transaction->put('total', $total);
+        }
+         
         return response()->json($transactions);
     }
 
-    public function transactionType($id) {
-        $categories = Transaction::where('transaction_type','=',$id)->with('category')->with('account')->get();
+    public function transactionType($id)
+    {
+        $categories = Transaction::where('transaction_type', '=', $id)->with('category')->with('account')->get();
         return response()->json($categories);
     }
 
@@ -99,11 +94,11 @@ class TransactionController extends Controller
         $transaction = new Transaction();
         $transaction->date = $request->date;
         $transaction->description = $request->description;
-		$transaction->category_id = $request->category;
-		$transaction_type = Category::find($request->category);
+        $transaction->category_id = $request->category;
+        $category = Category::find($request->category);
         $transaction->amount = $request->amount;
         $transaction->account_id = $request->account;
-        $transaction->transaction_type = $transaction_type->type;
+        $transaction->transaction_type = $category->type;
         $transaction->user_id = auth()->user()->id;
         $transaction->save();
         return response()->json($transaction);
@@ -117,7 +112,7 @@ class TransactionController extends Controller
      */
     public function show($id)
     {
-		$transaction = Transaction::with('category')->with('account')->find($id);
+        $transaction = Transaction::with('category')->with('account')->find($id);
         return response()->json($transaction);
     }
 
@@ -156,18 +151,21 @@ class TransactionController extends Controller
         $transaction->user_id = auth()->user()->id;
         $transaction->save();
         return response()->json($transaction);
-	}
-	
-	public function getAllTransactionMonth() {
-		$months = Transaction::select(
-			DB::raw("DATE_FORMAT(date,'%M-%Y') as months")
-		)
-		->where('date', '<', Carbon::now()->subMonth())
-		->orderBy('date', 'asc')
-		->groupBy('months')
-		->get();
-		return response()->json($months);
-	}
+    }
+    
+    public function getAllTransactionMonth()
+    {
+        DB::statement("SET SQL_MODE=''");
+        $months = Transaction::select(
+            DB::raw("DATE_FORMAT(date,'%M-%Y') as months")
+        )
+        ->where('date', '<', Carbon::now()->subMonth())
+        ->groupBy('months')
+        ->orderBy('date', 'asc')
+        ->get();
+        DB::statement("SET SQL_MODE=only_full_group_by");
+        return response()->json($months);
+    }
 
     /**
      * Remove the specified resource from storage.

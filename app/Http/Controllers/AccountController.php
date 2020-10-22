@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 
 class AccountController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,8 +18,7 @@ class AccountController extends Controller
      */
     public function index()
     {
-
-        $accounts = Account::where('user_id','=' , auth()->user()->id)->get();
+        $accounts = Account::where('user_id', '=', auth()->user()->id)->get();
         return response()->json($accounts);
     }
 
