@@ -23,22 +23,16 @@ class TransactionController extends Controller
     public function index()
     {
         if (request()->type == "future") {
-            $transactions = Transaction::orderBy('date', 'desc')->where('date', '>', Carbon::now()->format('Y-m-d'))->with('category')->with('account')
-            ->get()
-            ->groupBy('date');
+            $transactions = Transaction::where('user_id', '=', auth()->user()->id)->where('date', '>', Carbon::now()->format('Y-m-d'))->orderBy('date', 'desc')->with('category', 'account')->get()->groupBy('date');
         } elseif (request()->type == "past") {
             $date = Carbon::now();
-            $transactions = Transaction::orderBy('date', 'desc')->whereMonth('date', $date->subMonth()->format('m'))->with('category')->with('account')->get()->groupBy('date');
+            $transactions = Transaction::where('user_id', '=', auth()->user()->id)->whereMonth('date', $date->subMonth()->format('m'))->orderBy('date', 'desc')->with('category', 'account')->get()->groupBy('date');
         } elseif (request()->type == "current") {
-            $transactions = Transaction::orderBy('date', 'desc')->whereMonth('date', Carbon::now()->format('m'))->where('date', '<=', Carbon::now()->format('Y-m-d'))->with('category')->with('account')
-            ->get()
-            ->groupBy('date');
+            $transactions = Transaction::where('user_id', '=', auth()->user()->id)->whereMonth('date', Carbon::now()->format('m'))->where('date', '<=', Carbon::now()->format('Y-m-d'))->orderBy('date', 'desc')->with('category', 'account')->get()->groupBy('date');
         } else {
             $date = request()->type;
             $dateMonthArray = explode('-', $date);
-            $transactions = Transaction::orderBy('date', 'desc')->whereMonth('date', date("m", strtotime($dateMonthArray[0])))->whereyear('date', $dateMonthArray[1])->with('category')->with('account')
-            ->get()
-            ->groupBy('date');
+            $transactions = Transaction::where('user_id', '=', auth()->user()->id)->whereMonth('date', date("m", strtotime($dateMonthArray[0])))->whereyear('date', $dateMonthArray[1])->orderBy('date', 'desc')->with('category', 'account')->get()->groupBy('date');
         }
         
         foreach ($transactions as $key => $transaction) {
@@ -63,7 +57,7 @@ class TransactionController extends Controller
 
     public function transactionType($id)
     {
-        $categories = Transaction::where('transaction_type', '=', $id)->with('category')->with('account')->get();
+        $categories = Transaction::where('user_id', '=', auth()->user()->id)->where('transaction_type', '=', $id)->with('category')->with('account')->get();
         return response()->json($categories);
     }
 
@@ -112,7 +106,7 @@ class TransactionController extends Controller
      */
     public function show($id)
     {
-        $transaction = Transaction::with('category')->with('account')->find($id);
+        $transaction = Transaction::with('category', 'account')->find($id);
         return response()->json($transaction);
     }
 
@@ -160,6 +154,7 @@ class TransactionController extends Controller
         $months = Transaction::select(
             DB::raw("DATE_FORMAT(date,'%M-%Y') as months")
         )
+        ->where('user_id', '=', auth()->user()->id)
         ->where('date', '<', Carbon::now()->subMonth())
         ->groupBy('months')
         ->orderBy('date', 'asc')
