@@ -86,10 +86,11 @@ class TransactionController extends Controller
     public function store(Request $request)
     {
         $this->validate(request(), [
-            'category' => 'required',
+            'category_id' => 'required',
             'date' => 'required',
             'amount' => 'required',
-            'account' => 'required',
+            'account_id' => 'required',
+            'transaction_type' => 'required'
         ]);
         $transaction = new Transaction();
         $transaction->date = $request->date;
@@ -136,9 +137,11 @@ class TransactionController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate(request(), [
+            'category_id' => 'required',
             'date' => 'required',
             'amount' => 'required',
-            'account' => 'required',
+            'account_id' => 'required',
+            'transaction_type' => 'required'
         ]);
         $transaction = Transaction::find($id);
         $transaction->date = $request->date;
@@ -154,7 +157,6 @@ class TransactionController extends Controller
     
     public function getAllTransactionMonth()
     {
-        DB::statement("SET SQL_MODE=''");
         $months = Transaction::select(
             DB::raw("DATE_FORMAT(date,'%M-%Y') as months")
         )
@@ -162,7 +164,6 @@ class TransactionController extends Controller
         ->groupBy('months')
         ->orderBy('date', 'asc')
         ->get();
-        DB::statement("SET SQL_MODE=only_full_group_by");
         return response()->json($months);
     }
 
