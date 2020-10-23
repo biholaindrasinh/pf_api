@@ -94,11 +94,10 @@ class TransactionController extends Controller
         $transaction = new Transaction();
         $transaction->date = $request->date;
         $transaction->description = $request->description;
-        $transaction->category_id = $request->category;
-        $category = Category::find($request->category);
+        $transaction->category_id = $request->category_id;
         $transaction->amount = $request->amount;
-        $transaction->account_id = $request->account;
-        $transaction->transaction_type = $category->type;
+        $transaction->account_id = $request->account_id;
+        $transaction->transaction_type = $request->transaction_type;
         $transaction->user_id = auth()->user()->id;
         $transaction->save();
         return response()->json($transaction);
@@ -144,9 +143,9 @@ class TransactionController extends Controller
         $transaction = Transaction::find($id);
         $transaction->date = $request->date;
         $transaction->description = $request->description;
-        $transaction->category_id = $request->category;
+        $transaction->category_id = $request->category_id;
         $transaction->amount = $request->amount;
-        $transaction->account_id = $request->account;
+        $transaction->account_id = $request->account_id;
         $transaction->transaction_type = $request->transaction_type;
         $transaction->user_id = auth()->user()->id;
         $transaction->save();
